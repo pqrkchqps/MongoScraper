@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Mongo Scraper-NPR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css"> -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+</head>
+
+<body>
+    <div class="jumbotron">
+        <h1 class="display-4">Mongo Scraper</h1>
+        <h3 class="display-5">NPR Edition</h3>
+        <hr class="my-4">
+        <p>Scrape articles, save them, and add notes!</p>
+        <button class="btn btn-primary btn-lg" role="button" id="scrape-btn">Scrape Articles</button>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="accordion" id="accordionEx">
+                    <div class="card">
+                        <div class="card-header" id="results">
+                            <h2 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse"
+                                    data-target="#collapseRes" aria-expanded="true" aria-controls="collapseOne">
+                                    Results
+                                </button>
+                            </h2>
+                        </div>
+
+                        <div id="collapseRes" class="collapse show" aria-labelledby="results"
+                            data-parent="#accordionEx">
+                            <div class="card-body" id="results-section">
+                                <p id="no-results">Sorry, no results currently. Please click scrape articles to see
+                                    results.</p>
+                                <!-- Sample Res Card -->
+                                <!-- <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Card title</h5>
+                                        <p class="card-text">With supporting text below as a natural lead-in to
+                                            additional content.</p>
+                                        <button class="btn btn-primary">Save</button>
+                                        <a href="" target="blank" class="btn btn-secondary">View Article</a>
+                                    </div>
+                                </div> -->
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="saved">
+                            <h2 class="mb-0">
+                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
+                                    data-target="#collapseSaved" aria-expanded="false" aria-controls="collapseTwo">
+                                    Saved Articles
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseSaved" class="collapse" aria-labelledby="saved" data-parent="#accordionEx">
+                            <div class="card-body" id="saved-section">
+                                <!-- <p id="no-saved">Sorry, no saved articles to display.</p> -->
+                                <!-- example card -->
+                                <!-- <div class="card" id="sample-saved">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Article Title</h5>
+                                            <p class="card-text">Some quick example text to build on the card title and make
+                                                up the bulk of the card's content.</p>
+                                        </div>
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item">Note 1 <button
+                                                    class="btn btn-danger float-right">X</button></li>
+                                        </ul>
+                                        <div class="card-body">
+                                            <button class="btn btn-info" id="new-note-btn">New Note</button>
+                                        </div>
+                                    </div> -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div><!-- end accordion col -->
+            <div class="col-md-4">
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Add Notes</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">No note selected at this time</p>
+                            <!-- example form -->
+
+                            <div id="enter-note">
+                                <form>
+                                    <div class="form-group">
+                                        <label for="exampleFormControlTextarea1">Note for... Article title</label>
+                                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+
+                                    </div>
+                                    <button class="btn btn-success">Save Note</button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+
+            </div>
+        </div>
+
+    </div>
+    <!--end row -->
+    </div>
+
+
+    <!-- script -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
