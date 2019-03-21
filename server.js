@@ -7,8 +7,8 @@ var db = require("./models");
 
 var PORT = 8080;
 
-// var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
-// mongoose.connect(MONGODB_URI);
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoScraper";
+mongoose.connect(MONGODB_URI);
 
 var app = express();
 app.use(logger("dev"));
@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/mongoScraper", { useNewUrlParser: true });
+// mongoose.connect("mongodb://localhost/mongoScraper", { useNewUrlParser: true });
 
 // Routes
 app.get("/scrape", function(req, res) {
