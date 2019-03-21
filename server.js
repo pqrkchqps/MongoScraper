@@ -8,7 +8,7 @@ var db = require("./models");
 var PORT = 8080;
 
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoScraper";
-mongoose.connect(MONGODB_URI);
+mongoose.connect(MONGODB_URI, {useNewUrlParser: true});
 
 var app = express();
 app.use(logger("dev"));
