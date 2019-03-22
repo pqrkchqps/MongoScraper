@@ -5,7 +5,7 @@ var axios = require("axios");
 var cheerio = require("cheerio");
 var db = require("./models");
 
-var PORT =    3000; //process.env.PORT ||
+var PORT =  process.env.PORT ||  3000; 
 
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoScraper";
 mongoose.connect(MONGODB_URI, {useNewUrlParser: true});
@@ -70,6 +70,14 @@ app.get("/scrape", function(req, res) {
       )
       .then(dbArticle => res.json(dbArticle))
       .catch( err => res.json(500, err))  
+  });
+
+  app.put("/articles/:id", function(req, res){
+      db.Article.update()
+      .then( dbChange => db.article.updateOne(
+          { _id: req.params.id }, { $set: { saved: true } })
+          .then(dbChange=> res.json(dbChange))
+          .catch( err => res.json(500, err))  );
   });
 
   // Start the server
