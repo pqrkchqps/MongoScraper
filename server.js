@@ -5,7 +5,7 @@ var axios = require("axios");
 var cheerio = require("cheerio");
 var db = require("./models");
 
-var PORT =   process.env.PORT || 3000;
+var PORT =    3000; //process.env.PORT ||
 
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoScraper";
 mongoose.connect(MONGODB_URI, {useNewUrlParser: true});
@@ -15,9 +15,6 @@ app.use(logger("dev"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"));
-
-// Connect to the Mongo DB
-// mongoose.connect("mongodb://localhost/mongoScraper", { useNewUrlParser: true });
 
 // Routes
 app.get("/scrape", function(req, res) {
@@ -69,7 +66,7 @@ app.get("/scrape", function(req, res) {
     db.Note.create(req.body)
       .then( dbNote => db.Article.findOneAndUpdate(
               {_id:req.params.id},
-              {$set:{note:dbNote._id}})    
+              {$push:{note:dbNote._id}})    
       )
       .then(dbArticle => res.json(dbArticle))
       .catch( err => res.json(500, err))  

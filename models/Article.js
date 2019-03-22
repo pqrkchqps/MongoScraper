@@ -18,7 +18,7 @@ var ArticleSchema = new Schema({
   },
 
   note: {
-    type: Schema.Types.ObjectId,
+    type: [Schema.Types.ObjectId],
     ref: "Note"
   }
 });

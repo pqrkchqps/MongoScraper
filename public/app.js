@@ -43,15 +43,15 @@ $(document).on("click", "#save", function(){
             $(`#result-${thisId}`).display='none';
             $("#saved-section").append(
                 `
-                <div class="card" data-id=${thisId}>
+                <div class="card" >
                 <div class="card-body">
                     <h5 class="card-title">${data.title}</h5>
                     <p class="card-text">${data.summary}</p>
                 </div>
-                <ul class="list-group list-group-flush card-notes">
+                <ul class="list-group list-group-flush" id="card-note-${thisId}">
                 </ul>
                 <div class="card-body">
-                    <button class="btn btn-info" id="new-note-btn">New Note</button>
+                    <button class="btn btn-info" id="new-note-btn" data-id=${thisId}>New Note</button>
                     <a href="${data.link}"  target="blank" class="btn btn-secondary">View Article</a>
                     </div>
             </div>
@@ -62,7 +62,7 @@ $(document).on("click", "#save", function(){
 
 $(document).on("click", "#new-note-btn", function() {
 
-    $("#notes").empty();
+    // $("#notes").empty();
     // Save the id from the p tag
     var thisId = $(this).attr("data-id");
     console.log(thisId)
@@ -75,10 +75,11 @@ $(document).on("click", "#new-note-btn", function() {
       // With that done, add the note information to the page
       .then(function(data) {
         console.log(data);
+
         $("#enter-note").html(
             `<form>
             <div class="form-group">
-                <label for="exampleFormControlTextarea1">Note for... ${data.title}</label>
+                <label for="exampleFormControlTextarea1">${data.title}</label>
                 <textarea class="form-control" id="bodyinput" rows="3"></textarea>
 
             </div>
@@ -87,23 +88,33 @@ $(document).on("click", "#new-note-btn", function() {
             
         );
 
-
-        // // The title of the article
-        // $("#notes").append("<h2>" + data.title + "</h2>");
-        // // An input to enter a new title
-        // $("#notes").append("<input id='titleinput' name='title' >");
-        // // A textarea to add a new note body
-        // $("#notes").append("<textarea id='bodyinput' name='body'></textarea>");
-        // // A button to submit a new note, with the id of the article saved to it
-        // $("#notes").append("<button data-id='" + data._id + "' id='savenote'>Save Note</button>");
-  
-        // // If there's a note in the article
-        // if (data.note) {
-        //   // Place the title of the note in the title input
-        //   $("#titleinput").val(data.note.title);
-        //   // Place the body of the note in the body textarea
-        //   $("#bodyinput").val(data.note.body);
-        // }
       });
   });
 
+
+$(document).on("click", "#savenote", function(){
+    event.preventDefault();
+    let note=$("#bodyinput").val();
+    let thisId=$(this).attr("data-id");
+
+    console.log("note for id: "+thisId+ "\nNote: " +note);
+
+
+
+    $(`#card-note-${thisId}`).append(
+        `<li class="list-group-item">${note} <button
+        class="btn btn-danger float-right">X</button></li>`
+    );
+
+    $.ajax({
+        method: "POST",
+        url: "/articles/" + thisId,
+        data: {
+          body: note
+        }
+      })
+        .then(function(data) {
+          console.log(data);
+          $("#notes").empty();
+        });
+})
