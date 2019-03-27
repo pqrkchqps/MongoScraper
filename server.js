@@ -16,7 +16,47 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"));
 
-function removeDupsByLink() {
+
+// Routes
+app.get("/scrape", function(req, res) {
+  axios.get("https://www.npr.org/sections/news/").then(function(response) {
+      var $ = cheerio.load(response.data);
+      var articles = scrapeCheerioArticles($);
+      saveArticlesAndRemoveDups(articles, res);
+  });
+});
+
+function scrapeCheerioArticles($){
+  var articles = [];
+  $("div.item-info").each(function(i, element) {
+    articles[i] = {};
+    articles[i].title = $(this)
+      .children("h2.title")
+      .text();
+    articles[i].link = $(this)
+      .children("h2.title")
+      .children("a")
+      .attr("href");
+    articles[i].summary= $(this)
+        .children("p")
+        .text();
+    console.log(articles[i]);
+  });
+  return articles;
+}
+
+function saveArticlesAndRemoveDups(articles, res){
+  db.Article.create(articles)
+    .then(function(savedArticles) {
+      console.log(savedArticles);
+      removeDupsByLink(res);
+    })
+    .catch(function(err) {
+      console.log(err);
+    });
+}
+
+function removeDupsByLink(res) {
   var previousLink;
   db.Article.find({}).sort('link').exec((err, articles) => {
     articles.forEach(article => {
@@ -27,105 +67,67 @@ function removeDupsByLink() {
       }
       previousLink = link;
     });
+    res.send("Scrap Complete");
   });
 }
 
-// Routes
-app.get("/scrape", function(req, res) {
-  axios.get("https://www.npr.org/sections/news/").then(function(response) {
+app.get("/articles", function(req, res) {
+  db.Article.find({saved: false}).sort({$natural:-1})
+    .then( articles => res.json(articles))
+});
+app.get("/saved-articles", function(req, res) {
+  db.Article.find({saved: true}).sort({$natural:-1})
+    .then( articles => res.json(articles))
+});
 
-      var $ = cheerio.load(response.data);
-      var results = [];
-      $("div.item-info").each(function(i, element) {
-        results[i] = {};
-        results[i].title = $(this)
-          .children("h2.title")
-          .text();
-        results[i].link = $(this)
-          .children("h2.title")
-          .children("a")
-          .attr("href");
-        results[i].summary= $(this)
-            .children("p")
-            .text();
-        console.log(results[i]);
-      });
+app.get("/articles/:id", function(req, res) {
+  db.Article.findOne({_id: req.params.id})
+    .populate("note")
+    .then( article => res.json(article))
+});
 
-      db.Article.create(results)
-        .then(function(savedResults) {
-          console.log(savedResults);
-          removeDupsByLink();
-          res.send("Scrape Saved");
-        })
-        .catch(function(err) {
-          console.log(err);
-        });
-      });
-    });
+app.get("/notes/:id", function(req, res) {
+  db.Note.findOne({_id: req.params.id})
+    .then( note => res.json(note))
+});
 
-  app.get("/articles", function(req, res) {
-    db.Article.find({saved: false}).sort({$natural:-1})
-      .then( articles => res.json(articles))
-  });
-  app.get("/saved-articles", function(req, res) {
-    db.Article.find({saved: true}).sort({$natural:-1})
-      .then( articles => res.json(articles))
-  });
+app.delete("/notes/:id", function(req, res) {
+  db.Note.findByIdAndRemove(req.params.id, (err, note) =>{
+    if (err) return res.status(500).send(err);
 
-  app.get("/articles/:id", function(req, res) {
-    db.Article.findOne({_id: req.params.id})
-      .populate("note")
-      .then( article => res.json(article))
-  });
+    const response = {
+      message: "Note successfully deleted",
+    };
+    return res.status(200).send(response);
+  })
+});
 
-  app.get("/notes/:id", function(req, res) {
-    db.Note.findOne({_id: req.params.id})
-      .then( note => res.json(note))
-  });
+app.post("/notes", function(req, res) {
+  db.Note.create({body: req.body.text})
+    .then( note => {
+      console.log("dbNote:")
+      console.log(note)
+      console.log("articleId:",req.body.articleId);
 
-  app.delete("/notes/:id", function(req, res) {
-    db.Note.findByIdAndRemove(req.params.id, (err, note) =>{
-      if (err) return res.status(500).send(err);
-
-      const response = {
-        message: "Note successfully deleted",
-      };
-      return res.status(200).send(response);
+      saveNoteToArticleId(note, req.body.articleId, res);
     })
-  });
-
-  app.post("/notes", function(req, res) {
-    db.Note.create({body: req.body.text})
-      .then( dbNote => {
-        console.log("dbNote:")
-        console.log(dbNote)
-        console.log("articleId:",req.body.articleId);
-        db.Article.findOneAndUpdate({_id: req.body.articleId}, {$push:{note: dbNote._id}}, {upsert:true},
-          (err, doc) => {
-            //if (err) return res.send(500, { error: err });
-            //return res.send("succesfully saved");
-          }
-        );
-        res.send(dbNote);
-      })
-      .catch( err => res.json(500, err))
-  });
+    .catch( err => res.json(500, err))
+});
+function saveNoteToArticleId(note, articleId, res){
+  db.Article.findOneAndUpdate({_id: articleId}, {$push:{note: note._id}}, {upsert:true},
+    (err, article) => {
+      if (err) return res.send(500, { error: err });
+      return res.send(note);
+    }
+  );
+}
 
   app.put("/articles/:id", function(req, res){
-    var data = req.body;
-    data = {
-          link: data.link,
-          summary: data.summary,
-          title: data.title,
-          saved: data.saved,
-          }
-
-      if (data.pushNote) {
-        data.$push = {note: pushNote};
-      }
-      db.Article.updateOne({_id: req.params.id}, data)
-      .then(()=>res.send("One Updated"));
+    var article = req.body;
+    db.Article.updateOne({_id: req.params.id}, article)
+    .then(()=>res.send("One Updated"));
   });
+
 
   // Start the server
 app.listen(PORT, function() {
